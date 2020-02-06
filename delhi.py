@@ -10,7 +10,10 @@ SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 
 # The ID and range of a sample spreadsheet.
 SAMPLE_SPREADSHEET_ID = '1q-xbFWn5ChMvKKIhoN-QbwQ1SS74c7FyJxYd5A25C8U'
-SAMPLE_RANGE_NAME = 'Jati!A2:F4'
+BASIM_SPREADSHEET_ID = '1-XixyeURaPVrcslUFPkxI3txQgUDQeHPJYMxT9ALXho'
+
+SAMPLE_RANGE_NAME = 'Copy of Delhi_Candidates_Caste_Data!O:V'
+BASIM_RANGE_NAME = 'Delhi_Candidates_Caste_Data!O:V'
 
 def main():
     """Shows basic usage of the Sheets API.
@@ -39,17 +42,19 @@ def main():
 
     # Call the Sheets API
     sheet = service.spreadsheets()
-    result = sheet.values().get(spreadsheetId=SAMPLE_SPREADSHEET_ID,
-                                range=SAMPLE_RANGE_NAME).execute()
+    result = sheet.values().get(spreadsheetId=BASIM_SPREADSHEET_ID,
+                                range=BASIM_RANGE_NAME).execute()
     values = result.get('values', [])
     print (values)
     if not values:
         print('No data found.')
     else:
-        print('Name, Major:')
-        for row in values:
-            # Print columns A and E, which correspond to indices 0 and 4.
-            print('%s, %s' % (row[0], row[2]))
+        sheet.values().batchUpdate(spreadsheetId=SAMPLE_SPREADSHEET_ID,body={'requests':[]}).execute()
+        print('Done')
+        # print('Name, Major:')
+        # for row in values:
+        #     # Print columns A and E, which correspond to indices 0 and 4.
+        #     print('%s, %s' % (row[0], row[3]))
 
 if __name__ == '__main__':
     main()
