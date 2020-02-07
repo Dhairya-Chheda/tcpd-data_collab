@@ -4,9 +4,14 @@ import os.path
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
 
 # If modifying these scopes, delete the file token.pickle.
-SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
+SCOPES = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive","https://spreadsheets.google.com/feeds"]
+creds = ServiceAccountCredentials.from_json_keyfile_name('client_secret.json', SCOPES)
+client = gspread.authorize(creds)
+
 
 # The ID and range of a sample spreadsheet.
 SAMPLE_SPREADSHEET_ID = '1q-xbFWn5ChMvKKIhoN-QbwQ1SS74c7FyJxYd5A25C8U'
@@ -15,46 +20,7 @@ BASIM_SPREADSHEET_ID = '1-XixyeURaPVrcslUFPkxI3txQgUDQeHPJYMxT9ALXho'
 SAMPLE_RANGE_NAME = 'Copy of Delhi_Candidates_Caste_Data!O:V'
 BASIM_RANGE_NAME = 'Delhi_Candidates_Caste_Data!O:V'
 
-def main():
-    """Shows basic usage of the Sheets API.
-    Prints values from a sample spreadsheet.
-    """
-    creds = None
-    # The file token.pickle stores the user's access and refresh tokens, and is
-    # created automatically when the authorization flow completes for the first
-    # time.
-    if os.path.exists('token.pickle'):
-        with open('token.pickle', 'rb') as token:
-            creds = pickle.load(token)
-    # If there are no (valid) credentials available, let the user log in.
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                './credentials.json', SCOPES)
-            creds = flow.run_local_server(port=0)
-        # Save the credentials for the next run
-        with open('token.pickle', 'wb') as token:
-            pickle.dump(creds, token)
+sheet = client.open("Delhi_Candidates_Caste_Data_Master").sheet1
 
-    service = build('sheets', 'v4', credentials=creds)
-
-    # Call the Sheets API
-    sheet = service.spreadsheets()
-    result = sheet.values().get(spreadsheetId=BASIM_SPREADSHEET_ID,
-                                range=BASIM_RANGE_NAME).execute()
-    values = result.get('values', [])
-    print (values)
-    if not values:
-        print('No data found.')
-    else:
-        sheet.values().batchUpdate(spreadsheetId=SAMPLE_SPREADSHEET_ID,body={'requests':[]}).execute()
-        print('Done')
-        # print('Name, Major:')
-        # for row in values:
-        #     # Print columns A and E, which correspond to indices 0 and 4.
-        #     print('%s, %s' % (row[0], row[3]))
-
-if __name__ == '__main__':
-    main()
+list_of_hashes = sheet.get_all_records()
+print(list_of_hashes)   
